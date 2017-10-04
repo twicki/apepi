@@ -1,0 +1,6 @@
+# pip requirements file
+
+pytest
+pandas
+
+# https://pip.pypa.io/en/stable/reference/pip_install/#example-requirements-file
