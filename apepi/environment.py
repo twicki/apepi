@@ -39,7 +39,8 @@ class Environment:
         """
         tmpfile = self.__create_cmd_file(cmd)
         self.__file_set_execbit(tmpfile.name)
-
+        # The temporary file needs to be closed for the subprocess to call it: https://stackoverflow.com/a/28410918/592024
+        tmpfile.file.close()
         from os import environ
         from subprocess import Popen, PIPE
 
@@ -47,8 +48,7 @@ class Environment:
                    stdout=PIPE,
                    stderr=PIPE,
                    universal_newlines=True,
-                   cwd=working_dir,
-                   env=environ.copy()) as p:
+                   cwd=working_dir) as p:
             out, err = p.communicate()
             returncode = p.returncode
 
@@ -78,6 +78,7 @@ class Environment:
         with open(file.name, 'w') as f:
             f.write(self.__env + "\n")
             f.write(cmd)
+            f.write("\n")
         return file
 
     @staticmethod
