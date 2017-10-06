@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 from .filesystem import Filesystem
-
+import logging
 
 class Environment:
     """
@@ -30,6 +30,7 @@ class Environment:
             self.__env = self.__fileheader
         else:
             self.__env = self.__create_environment(filename)
+        logging.info("Creating environment:\n{}".format(self.__env))
 
     def run(self, cmd: str, working_dir=".") -> (str, str, int):
         """
@@ -44,6 +45,8 @@ class Environment:
         # https://stackoverflow.com/a/28410918/592024
         tmpfile.file.close()
 
+        logging.info("Running {cmd} in environment".format(cmd=cmd))
+
         from subprocess import Popen, PIPE
 
         with Popen(tmpfile.name,
@@ -54,6 +57,9 @@ class Environment:
             out, err = p.communicate()
             returncode = p.returncode
 
+        logging.info("Result:\n{}".format(out))
+        if returncode != 0:
+            logging.error("Error: Received returncode {code}:\n{err}".format(code=returncode,err=err))
         return out, err, returncode
 
     def __create_environment(self, file: str) -> str:
@@ -81,4 +87,6 @@ class Environment:
             f.write(self.__env + "\n")
             f.write(cmd)
             f.write("\n")
+
+        logging.debug("Creating a temporary file for {cmd} in {file}".format(cmd=cmd, file=file.name))
         return file

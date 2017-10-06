@@ -1,3 +1,4 @@
+import logging
 
 
 class Filesystem:
@@ -36,12 +37,14 @@ class Filesystem:
     @staticmethod
     def mkdir(path: str, mode=0o700):
         """Create a directory"""
+        logging.debug("Create directory {}".format(path))
         import pathlib
         pathlib.Path(path).mkdir(parents=True, exist_ok=True, mode=mode)
 
     @staticmethod
     def touch(path: str, mode=0o600):
         """Create empty file"""
+        logging.debug("Touching file {}".format(path))
         from pathlib import Path
         Path(path=path).touch(mode=mode, exist_ok=True)
 
@@ -56,6 +59,7 @@ class Filesystem:
     @staticmethod
     def link(source: str, target: str):
         """Create symlink"""
+        logging.debug("Creating a symlink from {target} to {source}".format(target=target, source=source))
         import os.symlink
         os.symlink(source=source, link_name=target)
 
@@ -87,6 +91,7 @@ class Filesystem:
         Set the executable bit on a file
         :param file: The file where the executable bit should be set
         """
+        logging.debug("Setting the executable bit to {}".format(file))
         from os import chmod, stat
         st = stat(file)
         chmod(file, st.st_mode | 0o111)

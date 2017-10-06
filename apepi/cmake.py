@@ -7,6 +7,8 @@ class CMakeException(Exception):
 
     def __init__(self, message: str, output: str, error: str):
         super(Exception, self).__init__(message)
+        print(output)
+        print(error)
         self.output = output
         self.error = error
 
