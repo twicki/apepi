@@ -1,4 +1,5 @@
 from tempfile import NamedTemporaryFile
+from .filesystem import Filesystem
 
 
 class Environment:
@@ -38,10 +39,11 @@ class Environment:
         :return: Result of the execution (stdout, stderr, return code)
         """
         tmpfile = self.__create_cmd_file(cmd)
-        self.__file_set_execbit(tmpfile.name)
-        # The temporary file needs to be closed for the subprocess to call it: https://stackoverflow.com/a/28410918/592024
+        Filesystem.set_execbit(tmpfile.name)
+        # The temporary file needs to be closed for the subprocess to call it:
+        # https://stackoverflow.com/a/28410918/592024
         tmpfile.file.close()
-        from os import environ
+
         from subprocess import Popen, PIPE
 
         with Popen(tmpfile.name,
@@ -80,15 +82,3 @@ class Environment:
             f.write(cmd)
             f.write("\n")
         return file
-
-    @staticmethod
-    def __file_set_execbit(file: str):
-        """
-        Set the executable bit on a file
-        :param file: The file where the executable bit should be set
-        """
-        from os import chmod, stat
-        st = stat(file)
-        chmod(file, st.st_mode | 0o111)
-
-
