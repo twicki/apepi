@@ -29,10 +29,10 @@ class CMake:
         :param build_command: Path to make (or cmake depending on your flavor)
         """
 
-        if not Filesystem.isdir(build_dir):
+        if not Filesystem.isdir(source_dir):
             raise ValueError("The source directory {} does not exist or is not a path."
                              .format(source_dir))
-        if not Filesystem.folder_empty(build_dir) and not overwrite_build_folder:
+        if Filesystem.exists(build_dir) and not overwrite_build_folder:
             raise ValueError("The build directory {} is not empty.".format(build_dir))
 
         # Cleanup and create dir
@@ -71,6 +71,6 @@ class CMake:
     @staticmethod
     def __stringify_configuration(config: dict) -> str:
         arg = ""
-        for key, value in config:
+        for key, value in config.items():
             arg += "-D{key}=\"{value}\" ".format(key=key, value=value)
         return arg
