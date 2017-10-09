@@ -1,4 +1,6 @@
 from apepi import CMake, CMakeException
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 def get_current_dir() -> str:

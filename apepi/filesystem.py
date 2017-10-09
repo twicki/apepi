@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger("apepi.Filesystem")
 
 
 class Filesystem:
@@ -31,20 +32,21 @@ class Filesystem:
             else:
                 raise
 
+        logger.debug("rmf: {}".format(path))
         import shutil
         shutil.rmtree(path=path, onerror=onerror)
 
     @staticmethod
     def mkdir(path: str, mode=0o700):
         """Create a directory"""
-        logging.debug("Create directory {}".format(path))
+        logger.debug("mkdir: {}".format(path))
         import pathlib
         pathlib.Path(path).mkdir(parents=True, exist_ok=True, mode=mode)
 
     @staticmethod
     def touch(path: str, mode=0o600):
         """Create empty file"""
-        logging.debug("Touching file {}".format(path))
+        logger.debug("touch: {}".format(path))
         from pathlib import Path
         Path(path).touch(mode=mode)
 
@@ -54,37 +56,44 @@ class Filesystem:
         if not Filesystem.isdir(path):
             raise ValueError("The path {} is not a folder".format(path))
         import os
-        return len(os.listdir(path)) == 0
+        return  len(os.listdir(path)) == 0
 
     @staticmethod
     def link(source: str, link_name: str):
         """Create symlink"""
-        logging.debug("Creating a symlink from {link_name} to {source}".format(link_name=link_name, source=source))
+        logger.debug("ln -s: {} {}".format(source, link_name))
         import os
-
         os.symlink(src=source, dst=link_name)
 
     @staticmethod
     def exists(path: str) -> bool:
         """Check whether path exists"""
         import os.path
-        return os.path.exists(path=path)
+        return os.path.exists(path)
 
     @staticmethod
     def isfile(path: str) -> bool:
         """Check whether a path is a file"""
         if not Filesystem.exists(path):
-            raise ValueError("The path {} does not exist".format(path))
+            raise ValueError("The path {} does not exist.".format(path))
         import os.path
-        return os.path.isfile(path=path)
+        return os.path.isfile(path)
 
     @staticmethod
     def isdir(path: str) -> bool:
         """Check whether a path is a directory"""
         if not Filesystem.exists(path):
-            raise ValueError("The path {} does not exist".format(path))
+            raise ValueError("The path {} does not exist.".format(path))
         import os.path
         return os.path.isdir(path)
+
+    @staticmethod
+    def islink(path: str) -> bool:
+        """Check whether a path is a symlink"""
+        if not Filesystem.exists(path):
+            raise ValueError("The path {} does not exist.".format(path))
+        import os.path
+        return os.path.islink(path)
 
     @staticmethod
     def set_execbit(file: str):
@@ -92,7 +101,7 @@ class Filesystem:
         Set the executable bit on a file
         :param file: The file where the executable bit should be set
         """
-        logging.debug("Setting the executable bit to {}".format(file))
+        logger.debug("set executable bit: {}".format(file))
         from os import chmod, stat
         st = stat(file)
         chmod(file, st.st_mode | 0o111)

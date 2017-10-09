@@ -1,6 +1,8 @@
 from tempfile import NamedTemporaryFile
 from .filesystem import Filesystem
 import logging
+logger = logging.getLogger("apepi.Environment")
+
 
 class Environment:
     """
@@ -25,12 +27,16 @@ class Environment:
 
         :param filename: environment file (typically a bash script)
         """
+
+        from .system import System
+        if System.is_windows():
+            raise NotImplementedError("Windows is not supported at the moment")
+
         self.__fileheader = "#!/usr/bin/env bash\n"
         if filename is "":
             self.__env = self.__fileheader
         else:
             self.__env = self.__create_environment(filename)
-        logging.info("Creating environment:\n{}".format(self.__env))
 
     def run(self, cmd: str, working_dir=".") -> (str, str, int):
         """
@@ -45,7 +51,8 @@ class Environment:
         # https://stackoverflow.com/a/28410918/592024
         tmpfile.file.close()
 
-        logging.info("Running {cmd} in environment".format(cmd=cmd))
+        import pathlib
+        logger.debug("running:\n{env}".format(env=pathlib.Path(tmpfile.name).open().read()))
 
         from subprocess import Popen, PIPE
 
@@ -57,9 +64,7 @@ class Environment:
             out, err = p.communicate()
             returncode = p.returncode
 
-        logging.info("Result:\n{}".format(out))
-        if returncode != 0:
-            logging.error("Error: Received returncode {code}:\n{err}".format(code=returncode,err=err))
+        logger.debug("result code {}:\n{}\n{}".format(returncode, out, err))
         return out, err, returncode
 
     def __create_environment(self, file: str) -> str:
@@ -82,7 +87,8 @@ class Environment:
         :param cmd: Command to be executed
         :return: A temporary file containing the command
         """
-        file = NamedTemporaryFile()
+        from .system import System
+        file = NamedTemporaryFile(prefix="apepi.Environment.{}".format(System.pid))
         with open(file.name, 'w') as f:
             f.write(self.__env + "\n")
             f.write(cmd)

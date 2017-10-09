@@ -1,5 +1,7 @@
 from .environment import Environment
 from . import Filesystem
+import logging
+logger = logging.getLogger("apepi.CMake")
 
 
 class CMakeException(Exception):
@@ -32,10 +34,12 @@ class CMake:
         """
 
         if not Filesystem.isdir(source_dir):
-            raise ValueError("The source directory {} does not exist or is not a path."
+            raise ValueError("CMake: The source directory {} does not exist or is not a path."
                              .format(source_dir))
-        if Filesystem.exists(build_dir) and not overwrite_build_folder:
-            raise ValueError("The build directory {} is not empty.".format(build_dir))
+        if not Filesystem.exists(build_dir):
+            raise ValueError("CMake: The build directory {} does not exist.".format(build_dir))
+        if not Filesystem.folder_empty(build_dir) and not overwrite_build_folder:
+            raise ValueError("CMake: The build directory {} is not empty.".format(build_dir))
 
         # Cleanup and create dir
         if Filesystem.exists(build_dir) and overwrite_build_folder:
@@ -57,6 +61,7 @@ class CMake:
         cmd = "{cmake} {src} {arg}".format(cmake=self.cmake_command,
                                            src=self.source_dir,
                                            arg=arg)
+        logger.debug("CMake configure {}\n{}".format(self.build_dir, cmd))
         std, err, code = self.environment.run(cmd=cmd, working_dir=self.build_dir)
 
         if code != 0:
@@ -65,6 +70,7 @@ class CMake:
     def make(self, arg=""):
         """Build"""
         cmd = "{make} {arg}".format(make=self.build_command, arg=arg)
+        logger.debug("CMake in {}\n{}".format(self.build_dir, cmd))
         std, err, code = self.environment.run(cmd=cmd, working_dir=self.build_dir)
 
         if code != 0:

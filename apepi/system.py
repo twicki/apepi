@@ -1,4 +1,5 @@
 import platform
+import os
 
 
 class System:
@@ -11,6 +12,9 @@ class System:
 
     """The operating system"""
     system = platform.system()
+
+    """The id of the current process"""
+    pid = os.getpid()
 
     @staticmethod
     def is_windows():

@@ -41,3 +41,8 @@ def test_link():
     assert (Filesystem.isfile(src))
 
     Filesystem.link(src, tgt)
+
+def test_exists():
+    tmpdir = TemporaryDirectory()
+    dir = tmpdir.name
+    assert (Filesystem.exists(dir))
