@@ -1,12 +1,13 @@
+import platform
 
 
 class System:
     """
-    A class abstracting system functions
+    A class abstracting system variables
     """
 
-    @staticmethod
-    def get_name() -> str:
-        """Return the name of the system the python process is running on"""
-        import platform
-        return platform.node()
+    """The name of the system the python process is running on"""
+    name = platform.node()
+
+    """The operating system"""
+    system = platform.system()
