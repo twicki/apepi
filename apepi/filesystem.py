@@ -46,7 +46,7 @@ class Filesystem:
         """Create empty file"""
         logging.debug("Touching file {}".format(path))
         from pathlib import Path
-        Path(path=path).touch(mode=mode, exist_ok=True)
+        Path(path).touch(mode=mode)
 
     @staticmethod
     def folder_empty(path: str) -> bool:
@@ -57,11 +57,12 @@ class Filesystem:
         return len(os.listdir(path)) == 0
 
     @staticmethod
-    def link(source: str, target: str):
+    def link(source: str, link_name: str):
         """Create symlink"""
-        logging.debug("Creating a symlink from {target} to {source}".format(target=target, source=source))
-        import os.symlink
-        os.symlink(source=source, link_name=target)
+        logging.debug("Creating a symlink from {link_name} to {source}".format(link_name=link_name, source=source))
+        import os
+
+        os.symlink(src=source, dst=link_name)
 
     @staticmethod
     def exists(path: str) -> bool:

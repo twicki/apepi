@@ -11,3 +11,15 @@ class System:
 
     """The operating system"""
     system = platform.system()
+
+    @staticmethod
+    def is_windows():
+        return System.system == "Windows"
+
+    @staticmethod
+    def is_linux():
+        return System.system == "Linux"
+
+    @staticmethod
+    def is_mac():
+        return System.system == "Darwin"
