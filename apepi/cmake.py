@@ -61,20 +61,22 @@ class CMake:
         cmd = "{cmake} {src} {arg}".format(cmake=self.cmake_command,
                                            src=self.source_dir,
                                            arg=arg)
-        logger.debug("CMake configure {}\n{}".format(self.build_dir, cmd))
+        logger.info("CMake configure {}\n{}".format(self.build_dir, cmd))
         std, err, code = self.environment.run(cmd=cmd, working_dir=self.build_dir)
+        logger.info("\n{output}\n{error}".format(output=std, error=err))
 
         if code != 0:
-            raise CMakeException("Unable to run cmake", output=std, error=err)
+            raise CMakeException("Unable to run cmake\n{output}\n{error}", output=std, error=err)
 
     def make(self, arg=""):
         """Build"""
         cmd = "{make} {arg}".format(make=self.build_command, arg=arg)
-        logger.debug("CMake in {}\n{}".format(self.build_dir, cmd))
+        logger.info("CMake in {}\n{}".format(self.build_dir, cmd))
         std, err, code = self.environment.run(cmd=cmd, working_dir=self.build_dir)
+        logger.info("\n{output}\n{error}".format(output=std, error=err))
 
         if code != 0:
-            raise CMakeException("Unable to run cmake", output=std, error=err)
+            raise CMakeException("Unable to run cmake\n{output}\n{error}", output=std, error=err)
 
     @staticmethod
     def __stringify_configuration(config: dict) -> str:

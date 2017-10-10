@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+
+
+def get_file_dir() -> str:
+    """Return the directory of the file"""
+    import os
+    return os.path.dirname(os.path.realpath(__file__))
+
+
+def get_environment():
+    """Get Environment"""
+    import apepi
+    system = apepi.System.name
+    env = apepi.Environment()
+    if system.startswith("kesch"):
+        env = apepi.Environment(get_file_dir()+"/env.kesch.sh")
+
+    return env
+
+
+def parse_configuration(config: []) -> {}:
+    c = {}
+    for value in config:
+        k, v = value.split('=', 1)
+        c[k]=v
+    return c
+
+
+def clean_or_create(path: str):
+    from apepi import Filesystem
+    if Filesystem.exists(path):
+        Filesystem.rmf(path)
+    Filesystem.mkdir(path)
+
+
+if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    import apepi
+
+    environment = get_environment()
+    configuration = {}
+    source_dir = apepi.System.cwd
+    build_dir = source_dir+"/build"
+    install_dir = source_dir+"/install"
+    build_type = "Release"
+    build_threads = 6
+    make_target = ['']
+
+    import argparse
+    parser = argparse.ArgumentParser(description='apepi Buildscript')
+    parser.add_argument("-b", "--build_dir", type=str, default=build_dir, nargs=1,
+                        help="The cmakebuild dir (default: {})".format(build_dir))
+    parser.add_argument("-i", "--install_dir", type=str, default=install_dir, nargs=1,
+                        help="The install dir (default: {})".format(install_dir))
+    parser.add_argument("-m", "--make_target", type=str, default=None, nargs='+',
+                        help="Make target")
+    parser.add_argument("-j", "--build_threads", type=int, default=build_threads, nargs=1,
+                        help="Make build threads (default: {})".format(build_threads))
+    parser.add_argument("-d", "--debug", help="Debug mode",  action='store_true')
+    parser.add_argument("-c", "--config", type=str, default=[], nargs="*",
+                        help="CMake Configuration Options (i.e. ENABLE_CUDA=ON)")
+    parser.add_argument("-z", "--clean", help="Clean")
+
+    args = parser.parse_args()
+    build_dir = args.build_dir
+    install_dir = args.install_dir
+    build_threads = args.build_threads
+    if args.debug:
+        build_type = "Debug"
+    if args.clean or not apepi.Filesystem.exists(build_dir):
+        clean_or_create(build_dir)
+
+    config = parse_configuration(args.config)
+    environment = get_environment()
+
+    if args.make_target is not None:
+        make_target = args.make_target
+    make_target = ' '.join(make_target)
+
+    cmake = apepi.CMake(source_dir=source_dir, build_dir=build_dir, configuration=config,
+                        environment=environment, overwrite_build_folder=True)
+    cmake.make("{target} -j {threads}".format(target=make_target, threads=build_threads))
