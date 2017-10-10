@@ -1,4 +1,5 @@
 from apepi import CMake, CMakeException
+from tempfile import TemporaryDirectory
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -11,7 +12,6 @@ def get_current_dir() -> str:
 
 def test_no_cmake():
     """Test error handling"""
-    from tempfile import TemporaryDirectory
     tmpdir = TemporaryDirectory()
 
     try:
@@ -22,7 +22,6 @@ def test_no_cmake():
 
 def test_configure():
     """Test cmake reconfiguration"""
-    from tempfile import TemporaryDirectory
     tmpdir = TemporaryDirectory()
 
     srcdir = get_current_dir()+"/testdata/cmake"
@@ -34,7 +33,6 @@ def test_configure():
 
 def test_compilation():
     """Test compilation"""
-    from tempfile import TemporaryDirectory
     tmpdir = TemporaryDirectory()
 
     srcdir = get_current_dir()+"/testdata/cmake"
