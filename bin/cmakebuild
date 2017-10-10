@@ -22,7 +22,7 @@ def parse_configuration(config: []) -> {}:
     c = {}
     for value in config:
         k, v = value.split('=', 1)
-        c[k]=v
+        c[k] = v
     return c
 
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     if args.install_dir:
         install_dir = args.install_dir
-        config["CMAKE_INSTALL_PREFIX"]=install_dir
+        config["CMAKE_INSTALL_PREFIX"] = install_dir
 
     environment = get_environment()
 

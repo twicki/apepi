@@ -30,7 +30,8 @@ class Filesystem:
                 os.chmod(rpath, stat.S_IWUSR)
                 func(rpath)
             else:
-                raise
+                raise RuntimeError("rmf: Can't delete the entire path: {path}. Got an error here: {rpath}"
+                                   .format(path=path, rpath=path))
 
         logger.debug("rmf: {}".format(path))
         import shutil
@@ -56,7 +57,7 @@ class Filesystem:
         if not Filesystem.isdir(path):
             raise ValueError("The path {} is not a folder".format(path))
         import os
-        return  len(os.listdir(path)) == 0
+        return len(os.listdir(path)) == 0
 
     @staticmethod
     def link(source: str, link_name: str):
