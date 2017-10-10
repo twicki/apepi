@@ -36,6 +36,8 @@ def clean_or_create(path: str):
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.INFO)
+    import sys
+    sys.path.insert(0, get_file_dir() + "/../")
     import apepi
 
     environment = get_environment()
