@@ -42,17 +42,16 @@ if __name__ == "__main__":
     configuration = {}
     source_dir = apepi.System.cwd
     build_dir = source_dir+"/build"
-    install_dir = source_dir+"/install"
     build_type = "Release"
     build_threads = 6
-    make_target = ['']
+    make_target = ''
 
     import argparse
     parser = argparse.ArgumentParser(description='apepi Buildscript')
-    parser.add_argument("-b", "--build_dir", type=str, default=build_dir, nargs=1,
+    parser.add_argument("-b", "--build_dir", type=str, default=build_dir,
                         help="The cmakebuild dir (default: {})".format(build_dir))
-    parser.add_argument("-i", "--install_dir", type=str, default=install_dir, nargs=1,
-                        help="The install dir (default: {})".format(install_dir))
+    parser.add_argument("-i", "--install_dir", type=str, default=None,
+                        help="The install dir (defined in cmake)")
     parser.add_argument("-m", "--make_target", type=str, default=None, nargs='+',
                         help="Make target")
     parser.add_argument("-j", "--build_threads", type=int, default=build_threads, nargs=1,
@@ -60,24 +59,30 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--debug", help="Debug mode",  action='store_true')
     parser.add_argument("-c", "--config", type=str, default=[], nargs="*",
                         help="CMake Configuration Options (i.e. ENABLE_CUDA=ON)")
-    parser.add_argument("-z", "--clean", help="Clean")
+    parser.add_argument("-z", "--clean", action='store_true', help="Clean")
 
+    # Setup cmake
     args = parser.parse_args()
-    build_dir = args.build_dir
-    install_dir = args.install_dir
+    config = parse_configuration(args.config)
     build_threads = args.build_threads
+    build_dir = args.build_dir
+
     if args.debug:
         build_type = "Debug"
     if args.clean or not apepi.Filesystem.exists(build_dir):
         clean_or_create(build_dir)
 
-    config = parse_configuration(args.config)
+    if args.install_dir:
+        install_dir = args.install_dir
+        config["CMAKE_INSTALL_PREFIX"]=install_dir
+
     environment = get_environment()
 
     if args.make_target is not None:
         make_target = args.make_target
-    make_target = ' '.join(make_target)
+        make_target = ' '.join(make_target)
 
     cmake = apepi.CMake(source_dir=source_dir, build_dir=build_dir, configuration=config,
                         environment=environment, overwrite_build_folder=True)
     cmake.make("{target} -j {threads}".format(target=make_target, threads=build_threads))
+

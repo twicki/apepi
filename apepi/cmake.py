@@ -9,8 +9,6 @@ class CMakeException(Exception):
 
     def __init__(self, message: str, output: str, error: str):
         super(Exception, self).__init__(message)
-        print(output)
-        print(error)
         self.output = output
         self.error = error
 
@@ -66,7 +64,7 @@ class CMake:
         logger.info("\n{output}\n{error}".format(output=std, error=err))
 
         if code != 0:
-            raise CMakeException("Unable to run cmake\n{output}\n{error}", output=std, error=err)
+            raise CMakeException("Unable to run cmake\n{cmd}".format(cmd=cmd), output, error)
 
     def make(self, arg=""):
         """Build"""
@@ -76,7 +74,7 @@ class CMake:
         logger.info("\n{output}\n{error}".format(output=std, error=err))
 
         if code != 0:
-            raise CMakeException("Unable to run cmake\n{output}\n{error}", output=std, error=err)
+            raise CMakeException("Unable to run make\n{cmd}".format(cmd=cmd), output, error)
 
     @staticmethod
     def __stringify_configuration(config: dict) -> str:
