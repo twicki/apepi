@@ -16,6 +16,9 @@ class System:
     """The id of the current process"""
     pid = os.getpid()
 
+    """The current working dir"""
+    cwd = os.getcwd()
+
     @staticmethod
     def is_windows():
         return System.system == "Windows"
